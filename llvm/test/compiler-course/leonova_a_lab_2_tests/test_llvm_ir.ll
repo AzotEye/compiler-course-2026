@@ -24,8 +24,8 @@ define i32 @udiv_pow2(i32 %x) {
 
 define i32 @sdiv_pow2_pos(i32 %x) {
 ; CHECK-LABEL: @sdiv_pow2_pos
-; CHECK: add i32
-; CHECK: ashr i32
+; CHECK: add i32 %x, %{{.*}}
+; CHECK: ashr i32 %{{.*}}, 1
   %1 = sdiv i32 %x, 2
   ret i32 %1
 }
