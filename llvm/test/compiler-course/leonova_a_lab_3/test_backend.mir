@@ -81,6 +81,17 @@
     %b = add i32 %a, 3
     br label %bb0
   }
+
+  ; Test 9: Loop with different operations (ADD and SUB) with trip count = 3
+  define void @test_mixed_operations_trip_count_3() {
+  entry:
+    br label %bb0
+  bb0:
+    %a = add i32 1, 2
+    %b = sub i32 %a, 3
+    %c = add i32 %b, 4
+    br label %bb0
+  }
 ...
 
 ---
@@ -275,4 +286,34 @@ body: |
     CMP32ri %0, 10, implicit-def $eflags
     %0 = ADD32ri %0, 2, implicit-def dead $eflags
     %1 = ADD32ri %0, 3, implicit-def dead $eflags
+    JMP_1 %bb.0
+
+---
+name: test_mixed_operations_trip_count_3
+tracksRegLiveness: true
+
+registers:
+  - { id: 0, class: gr32 }
+  - { id: 1, class: gr32 }
+  - { id: 2, class: gr32 }
+
+body: |
+  bb.0:
+    ; CHECK-LABEL: name: test_mixed_operations_trip_count_3
+    ; CHECK: CMP32ri
+    ; CHECK: ADD32ri
+    ; CHECK: SUB32ri
+    ; CHECK: ADD32ri
+    ; CHECK: ADD32ri
+    ; CHECK: SUB32ri
+    ; CHECK: ADD32ri
+    ; CHECK: ADD32ri
+    ; CHECK: SUB32ri
+    ; CHECK: ADD32ri
+    ; CHECK-NOT: JMP_1
+    
+    CMP32ri %0, 2, implicit-def $eflags
+    %0 = ADD32ri %0, 2, implicit-def dead $eflags
+    %1 = SUB32ri %0, 3, implicit-def dead $eflags
+    %2 = ADD32ri %1, 4, implicit-def dead $eflags
     JMP_1 %bb.0
