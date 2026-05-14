@@ -22,9 +22,13 @@ func.func @copy_iv(%a: memref<4xi32>,
 }
 
 // CHECK-LABEL: func.func @copy_iv
-// CHECK: scf.for %{{.*}} = %{{.*}} to %{{.*}} step %{{.*}}
-// CHECK: memref.load
-// CHECK: memref.store
+// CHECK-DAG: %[[LB:.*]] = arith.constant 0 : index
+// CHECK-DAG: %[[UB:.*]] = arith.constant 4 : index
+// CHECK-DAG: %[[STEP:.*]] = arith.constant 1 : index
+// CHECK: scf.for %[[IV:.*]] = %[[LB]] to %[[UB]] step %[[STEP]]
+// CHECK: memref.load %{{.*}}[%[[IV]]]
+// CHECK: memref.store %{{.*}}, %{{.*}}[%[[IV]]]
+
 // CHECK-NOT: memref.copy
 
 func.func @multi(%a: memref<4xi32>,
